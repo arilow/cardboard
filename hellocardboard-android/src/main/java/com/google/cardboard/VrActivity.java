@@ -50,7 +50,6 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
   static {
     System.loadLibrary("cardboard_jni");
   }
-
   
   private static final String TAG = VrActivity.class.getSimpleName();
 
