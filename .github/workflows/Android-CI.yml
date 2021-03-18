@@ -14,7 +14,7 @@ jobs:
       - name: Build sdk
         run: ./gradlew :sdk:assemble
       - name: Build HelloCardboard
-        run: ./gradlew :hellocardboard-android:assembleDebug
       - name: Code checks
         run: ./gradlew check
+        run: ./gradlew :hellocardboard-android:assembleDebug
 
