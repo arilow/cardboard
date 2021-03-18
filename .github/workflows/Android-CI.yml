@@ -13,8 +13,8 @@ jobs:
           fetch-depth: 0
       - name: Build sdk
         run: ./gradlew :sdk:assemble
-      - name: Code checks
-        run: ./gradlew check
       - name: Build HelloCardboard
         run: ./gradlew :hellocardboard-android:assembleDebug
+      - name: Code checks
+        run: ./gradlew check
 
