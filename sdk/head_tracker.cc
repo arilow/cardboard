@@ -86,7 +86,7 @@ void HeadTracker::GetPose(int64_t timestamp_ns,
       Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.0);
 
   const Vector4 q =
-      (sensor_to_display * predicted_rotation * ekf_to_head_tracker)
+      (sensor_to_display * predicted_rotation * ekf_to_head_tracker /** recenter_rotation_*/)
           .GetQuaternion();
   Rotation rotation;
   rotation.SetQuaternion(q);
@@ -95,8 +95,27 @@ void HeadTracker::GetPose(int64_t timestamp_ns,
   out_orientation[1] = static_cast<float>(rotation.GetQuaternion()[1]);
   out_orientation[2] = static_cast<float>(rotation.GetQuaternion()[2]);
   out_orientation[3] = static_cast<float>(rotation.GetQuaternion()[3]);
-
   out_position = ApplyNeckModel(out_orientation, 1.0);
+
+  double actual_angle;
+  double roll;
+  Vector3 aux;
+  rotation.GetAxisAndAngle(&aux, &actual_angle);
+
+  double x = out_orientation[0];
+  double y = out_orientation[1];
+  double z = out_orientation[2];
+  double w = out_orientation[3];
+
+  double sinr_cosp = 2 * (w * x + y * z);
+  double cosr_cosp = 1 - 2 * (x * x + y * y);
+  roll = std::atan2(sinr_cosp, cosr_cosp);
+  //  CARDBOARD_LOGI("angle: %f", actual_angle*180/M_PI);
+
+  CARDBOARD_LOGI("roll: %f", roll*180/M_PI);
+
+//  double recenter_yaw_angle = 2 * asin(rotation.GetQuaternion()[1]);
+//  CARDBOARD_LOGI("recenter_yaw_angle: %f", recenter_yaw_angle*180/M_PI);
 }
 
 Rotation HeadTracker::GetDefaultOrientation() const {
@@ -129,8 +148,65 @@ void HeadTracker::OnGyroscopeData(const GyroscopeData& event) {
   sensor_fusion_->ProcessGyroscopeSample(event);
 }
 
-void Recenter(){
-    CARDBOARD_LOGI("This function is not implemented yet.");
+void HeadTracker::Recenter() {
+  const PoseState pose_state = sensor_fusion_->GetLatestPoseState();
+//  CARDBOARD_LOGI("This function is not implemented yet.");
+  CARDBOARD_LOGI("---------------------------------------");
+
+  Rotation r;
+  GetPose(r);
+  double actual_angle;
+  Vector3 actual_axis;
+  r.GetAxisAndAngle(&actual_axis, &actual_angle);
+  Vector4 quat = r.GetQuaternion();
+
+   Vector3 aux;
+   r.GetAxisAndAngle(&aux, &actual_angle);
+
+   double hyp = sqrt(aux[0]*aux[0]+aux[1]*aux[1]+aux[2]*aux[2]);
+   double cos = aux[1]/hyp;
+
+
+  double x = quat[0];
+  double y = quat[1];
+  double z = quat[2];
+  double w = quat[3];
+
+    double yaw_angle = cos * actual_angle;
+//  double yaw_angle = 2 * asin(y);
+
+//  double yaw_angle = atan2(2.0*(y * z + w * x), w * w - x * x - y * y + z * z);
+//  double yaw_angle = atan2(2.0f * (w * z + x * y), w * w + x * x - y * y - z * z);
+
+//  CARDBOARD_LOGI("actual_angle: %f", actual_angle*180/M_PI);
+//  CARDBOARD_LOGI("actual_axis: %f, %f, %f", actual_axis[0], actual_axis[1], actual_axis[2]);
+
+//CARDBOARD_LOGI("quat: %f, %f, %f, %f", quat[0], quat[1], quat[2], quat[3]);
+CARDBOARD_LOGI("angle: %f", actual_angle*180/M_PI);
+
+CARDBOARD_LOGI("yaw_angle: %f", yaw_angle*180/M_PI);
+  CARDBOARD_LOGI("2 * asin(y): %f", 2 * asin(y)*180/M_PI);
+
+  //recenter_rotation_ = Rotation::FromYawPitchRoll(-yaw_angle,0,0);
+
+  double recenter_yaw_angle = 2 * asin(recenter_rotation_.GetQuaternion()[1]);
+  CARDBOARD_LOGI("recenter_yaw_angle: %f", recenter_yaw_angle*180/M_PI);
 }
+
+void HeadTracker::GetPose(Rotation& out_orientation) const {
+    Rotation predicted_rotation;
+    const PoseState pose_state = sensor_fusion_->GetLatestPoseState();
+      predicted_rotation = pose_state.sensor_from_start_rotation;
+
+    const Rotation ekf_to_head_tracker =
+        Rotation::FromYawPitchRoll(-M_PI / 2.0, 0, -M_PI / 2.0);
+    const Rotation sensor_to_display =
+        Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.0);
+
+    const Vector4 q =
+        (sensor_to_display * predicted_rotation * ekf_to_head_tracker * recenter_rotation_)
+            .GetQuaternion();
+    out_orientation.SetQuaternion(q);
+ }
 
 }  // namespace cardboard
