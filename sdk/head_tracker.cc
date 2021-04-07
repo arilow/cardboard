@@ -97,6 +97,7 @@ void HeadTracker::GetPose(int64_t timestamp_ns,
   out_orientation[3] = static_cast<float>(rotation.GetQuaternion()[3]);
 
   out_position = ApplyNeckModel(out_orientation, 1.0);
+  CARDBOARD_LOGI("Yaw angle: %f", rotation.GetYawAngle());
 }
 
 Rotation HeadTracker::GetDefaultOrientation() const {
