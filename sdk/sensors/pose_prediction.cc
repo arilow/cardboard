@@ -49,6 +49,10 @@ Rotation GetRotationFromGyroscope(const Vector3& gyroscope_value,
 
 Rotation PredictPose(int64_t requested_pose_timestamp,
                      const PoseState& current_state) {
+  if (requested_pose_timestamp <= current_state.timestamp) {
+    return current_state.sensor_from_start_rotation;
+  }
+
   // Subtracting unsigned numbers is bad when the result is negative.
   const int64_t diff = requested_pose_timestamp - current_state.timestamp;
   const double timestep_s = static_cast<double>(diff) * 1e-9;

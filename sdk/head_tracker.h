@@ -49,7 +49,6 @@ class HeadTracker {
 
   // Recenters the head tracker
   void Recenter();
-  void GetPose(Rotation& out_orientation) const;
 
  private:
   // Function called when receiving AccelerometerData.
@@ -70,6 +69,9 @@ class HeadTracker {
   // This is useful for informing the sensors that they may be able to stop
   // polling for data.
   void UnregisterCallbacks();
+
+  //Documentation
+  Rotation GetOrientation(int timestamp_ns) const;
 
   Rotation GetDefaultOrientation() const;
 
