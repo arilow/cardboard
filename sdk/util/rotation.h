@@ -126,6 +126,10 @@ class Rotation {
   // Multiply a Rotation and a Vector to get a Vector.
   VectorType operator*(const VectorType& v) const;
 
+  double GetYawAngle();
+  double GetPitchAngle();
+  double GetRollAngle();
+
  private:
   // Private constructor that builds a Rotation from quaternion components.
   Rotation(double q0, double q1, double q2, double q3)
