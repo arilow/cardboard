@@ -239,7 +239,8 @@ void HelloCardboardApp::OnResume() {
 }
 
 void HelloCardboardApp::SwitchViewer() {
-  CardboardQrCode_scanQrCodeAndSaveDeviceParams();
+  CardboardHeadTracker_recenter(head_tracker_);
+//  CardboardQrCode_scanQrCodeAndSaveDeviceParams();
 }
 
 bool HelloCardboardApp::UpdateDeviceParams() {

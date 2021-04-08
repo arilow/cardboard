@@ -44,6 +44,8 @@ class Rotation {
   // Returns the Rotation as a normalized quaternion (4D vector).
   const QuaternionType& GetQuaternion() const { return quat_; }
 
+  VectorType GetVector() const { return VectorType (quat_[0], quat_[1], quat_[2]); }
+
   // Sets the Rotation to rotate by the given angle around the given axis,
   // following the right-hand rule. The axis does not need to be unit
   // length. If it is zero length, this results in an identity Rotation.
@@ -126,7 +128,11 @@ class Rotation {
   // Multiply a Rotation and a Vector to get a Vector.
   VectorType operator*(const VectorType& v) const;
 
- private:
+  double GetYawAngle();
+  double GetPitchAngle();
+  double GetRollAngle();
+
+  private:
   // Private constructor that builds a Rotation from quaternion components.
   Rotation(double q0, double q1, double q2, double q3)
       : quat_(q0, q1, q2, q3) {}

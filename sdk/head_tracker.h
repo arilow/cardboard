@@ -47,6 +47,9 @@ class HeadTracker {
   void GetPose(int64_t timestamp_ns, std::array<float, 3>& out_position,
                std::array<float, 4>& out_orientation) const;
 
+  // Recenters the head tracker
+  void Recenter();
+
  private:
   // Function called when receiving AccelerometerData.
   //
@@ -67,8 +70,12 @@ class HeadTracker {
   // polling for data.
   void UnregisterCallbacks();
 
+  //Documentation
+  Rotation GetOrientation(int timestamp_ns) const;
+
   Rotation GetDefaultOrientation() const;
 
+  Rotation recenter_rotation_ = Rotation();
   std::atomic<bool> is_tracking_;
   // Sensor Fusion object that stores the internal state of the filter.
   std::unique_ptr<SensorFusionEkf> sensor_fusion_;
