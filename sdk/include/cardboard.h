@@ -42,6 +42,14 @@ typedef enum CardboardEye {
   kRight = 1,
 } CardboardEye;
 
+
+typedef enum CardboardViewportOrientation {
+  CardboardViewportOrientation_LandscapeLeft = 0,
+  CardboardViewportOrientation_LandscapeRight = 1,
+  CardboardViewportOrientation_Portrait = 2,
+  CardboardViewportOrientation_PortraitUpsideDown = 3,
+} CardboardViewportOrientation;
+
 /// Struct representing a 3D mesh with 3D vertices and corresponding UV
 /// coordinates.
 typedef struct CardboardMesh {
@@ -404,7 +412,7 @@ void CardboardHeadTracker_resume(CardboardHeadTracker* head_tracker);
 /// @param[out]     orientation             4 floats for quaternion
 void CardboardHeadTracker_getPose(CardboardHeadTracker* head_tracker,
                                   int64_t timestamp_ns,
-                                  CardboardViewportOrientation viewport_orientation,
+                                  /*CardboardViewportOrientation viewport_orientation,*/
                                   float* position, float* orientation);
 
 /// @}

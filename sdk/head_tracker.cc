@@ -20,6 +20,7 @@
 #include "util/logging.h"
 #include "util/vector.h"
 #include "util/vectorutils.h"
+#include "include/cardboard.h"
 
 namespace cardboard {
 
@@ -80,10 +81,39 @@ void HeadTracker::GetPose(int64_t timestamp_ns,
   // apply the current sensor transformation, and then transform into display
   // space.
   // TODO(b/135488467): Support different screen orientations.
-  const Rotation ekf_to_head_tracker =
-      Rotation::FromYawPitchRoll(-M_PI / 2.0, 0, -M_PI / 2.0);
-  const Rotation sensor_to_display =
-      Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.0);
+//  CardboardViewportOrientation aux = CardboardViewportOrientation_LandscapeLeft;
+  // CardboardViewportOrientation aux = CardboardViewportOrientation_LandscapeRight;
+  CardboardViewportOrientation aux = CardboardViewportOrientation_PortraitUpsideDown;
+
+  Rotation ekf_to_head_tracker;
+  Rotation sensor_to_display;
+
+  switch(aux) {
+    case CardboardViewportOrientation_LandscapeLeft:
+          ekf_to_head_tracker = Rotation::FromYawPitchRoll(-M_PI / 2., 0, -M_PI / 2.);
+          sensor_to_display = Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.);
+          break;
+
+    case CardboardViewportOrientation_LandscapeRight:
+          ekf_to_head_tracker = Rotation::FromYawPitchRoll(M_PI / 2., 0, M_PI / 2.);
+          sensor_to_display = Rotation::FromAxisAndAngle(Vector3(0, 0, 1), -M_PI / 2.);
+          break;
+
+    case CardboardViewportOrientation_Portrait:
+          ekf_to_head_tracker = Rotation::FromYawPitchRoll(M_PI / 2., M_PI / 2., M_PI / 2.);
+          sensor_to_display = Rotation::FromAxisAndAngle(Vector3(0, 0, 1), 0.);
+          break;
+
+    default: // Portrait and PortraitUpsideDown
+          ekf_to_head_tracker = Rotation::FromYawPitchRoll(-M_PI / 2., -M_PI / 2., -M_PI / 2.);
+          sensor_to_display = Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI);
+          break;
+  }
+
+  // const Rotation ekf_to_head_tracker =
+  //     Rotation::FromYawPitchRoll(-M_PI / 2.0, 0, -M_PI / 2.0);
+  // const Rotation sensor_to_display =
+  //     Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.0);
 
   const Vector4 q =
       (sensor_to_display * predicted_rotation * ekf_to_head_tracker)
