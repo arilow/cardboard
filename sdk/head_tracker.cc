@@ -26,54 +26,71 @@ namespace cardboard {
 
 namespace {
 
-  const Rotation ekf_to_head_tracker_LandscapeLeft =
-      Rotation::FromYawPitchRoll(-M_PI / 2., 0, -M_PI / 2.);
-  const Rotation sensor_to_display_LandscapeLeft =
-      Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.);
+  void GetViewporOrientationRotation(
+          const CardboardViewportOrientation ViewportOrientation,
+          Rotation* ekf_to_head_tracker,
+          Rotation* sensor_to_display) {
 
-  const Rotation ekf_to_head_tracker_LandscapeRight =
-      Rotation::FromYawPitchRoll(M_PI / 2., 0, M_PI / 2.);
-  const Rotation sensor_to_display_LandscapeRight =
-      Rotation::FromAxisAndAngle(Vector3(0, 0, 1), -M_PI / 2.);
+    // This is the same than initializing the rotation from
+    // Rotation::FromYawPitchRoll(-M_PI / 2., 0, -M_PI / 2.).
+    static const Rotation kEkftoHeadTrackerLandscapeLeft =
+        Rotation::FromQuaternion(Rotation::QuaternionType(0.5, -0.5, -0.5, 0.5));
+    static const Rotation kSensorToDisplayLandscapeLeft =
+        Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI / 2.);
 
-  const Rotation ekf_to_head_tracker_Portrait =
-      Rotation::FromYawPitchRoll(M_PI / 2., M_PI / 2., M_PI / 2.);
-  const Rotation sensor_to_display_Portrait =
-      Rotation::FromAxisAndAngle(Vector3(0, 0, 1), 0.);
+    // This is the same than initializing the rotation from
+    // Rotation::FromYawPitchRoll(M_PI / 2., 0, M_PI / 2.).
+    static const Rotation kEkftoHeadTrackerLandscapeRight =
+        Rotation::FromQuaternion(Rotation::QuaternionType(0.5, 0.5, 0.5, 0.5));
+    static const Rotation kSensorToDisplayLandscapeRight =
+        Rotation::FromAxisAndAngle(Vector3(0, 0, 1), -M_PI / 2.);
 
-  const Rotation ekf_to_head_tracker_PortraitUpsideDown =
-      Rotation::FromYawPitchRoll(-M_PI / 2., -M_PI / 2., -M_PI / 2.);
-  const Rotation sensor_to_display_PortraitUpsideDown =
-      Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI);
+    // This is the same than initializing the rotation from
+    // Rotation::FromYawPitchRoll(M_PI / 2., M_PI / 2., M_PI / 2.).
+    static const Rotation kEkftoHeadTrackerPortrait =
+        Rotation::FromQuaternion(Rotation::QuaternionType(0.707107, 0, 0, 0.707107));
+    static const Rotation kSensorToDisplayPortrait =
+        Rotation::FromAxisAndAngle(Vector3(0, 0, 1), 0.);
 
-  constexpr void GetViewporOrientationRotation(
-      const CardboardViewportOrientation ViewportOrientation,
-      Rotation& ekf_to_head_tracker,
-      Rotation& sensor_to_display) {
+    // This is the same than initializing the rotation from
+    // Rotation::FromYawPitchRoll(-M_PI / 2., -M_PI / 2., -M_PI / 2.).
+    static const Rotation kEkftoHeadTrackerPortraitUpsideDown =
+        Rotation::FromQuaternion(Rotation::QuaternionType(0, -0.707107, -0.707107, 0));
+
+    CARDBOARD_LOGI(
+        "quaternion: 0: %f, 1: %f, 2: %f, 3: %f.",
+        kEkftoHeadTrackerPortraitUpsideDown.GetQuaternion()[0],
+        kEkftoHeadTrackerPortraitUpsideDown.GetQuaternion()[1],
+        kEkftoHeadTrackerPortraitUpsideDown.GetQuaternion()[2],
+        kEkftoHeadTrackerPortraitUpsideDown.GetQuaternion()[3]);
+
+    static const Rotation kSensorToDisplayPortraitUpsideDown =
+        Rotation::FromAxisAndAngle(Vector3(0, 0, 1), M_PI);
+
     switch (ViewportOrientation) {
       case CardboardViewportOrientation_LandscapeLeft:
-        ekf_to_head_tracker = ekf_to_head_tracker_LandscapeLeft;
-        sensor_to_display = sensor_to_display_LandscapeLeft;
+        *ekf_to_head_tracker = kEkftoHeadTrackerLandscapeLeft;
+        *sensor_to_display = kSensorToDisplayLandscapeLeft;
         break;
 
       case CardboardViewportOrientation_LandscapeRight:
-        ekf_to_head_tracker = ekf_to_head_tracker_LandscapeRight;
-        sensor_to_display = sensor_to_display_LandscapeRight;
+        *ekf_to_head_tracker = kEkftoHeadTrackerLandscapeRight;
+        *sensor_to_display = kSensorToDisplayLandscapeRight;
         break;
 
       case CardboardViewportOrientation_Portrait:
-        ekf_to_head_tracker = ekf_to_head_tracker_Portrait;
-        sensor_to_display = sensor_to_display_Portrait;
+        *ekf_to_head_tracker = kEkftoHeadTrackerPortrait;
+        *sensor_to_display = kSensorToDisplayPortrait;
         break;
 
       default: // PortraitUpsideDown
-        ekf_to_head_tracker = ekf_to_head_tracker_PortraitUpsideDown;
-        sensor_to_display = sensor_to_display_PortraitUpsideDown;
+        *ekf_to_head_tracker = kEkftoHeadTrackerPortraitUpsideDown;
+        *sensor_to_display = kSensorToDisplayPortraitUpsideDown;
         break;
     }
   }
 
-}  // namespaces
+}  // namespace
 
 HeadTracker::HeadTracker()
     : is_tracking_(false),
@@ -133,8 +150,10 @@ void HeadTracker::GetPose(int64_t timestamp_ns,
   // space.
   // TODO(b/135488467): Support different screen orientations.
 //  CardboardViewportOrientation aux = CardboardViewportOrientation_LandscapeLeft;
-   CardboardViewportOrientation aux = CardboardViewportOrientation_LandscapeRight;
-  //CardboardViewportOrientation aux = CardboardViewportOrientation_PortraitUpsideDown;
+   //CardboardViewportOrientation aux = CardboardViewportOrientation_LandscapeRight;
+  //CardboardViewportOrientation aux = CardboardViewportOrientation_Portrait;
+
+  CardboardViewportOrientation aux = CardboardViewportOrientation_PortraitUpsideDown;
 
   Rotation ekf_to_head_tracker;
   Rotation sensor_to_display;
@@ -142,8 +161,8 @@ void HeadTracker::GetPose(int64_t timestamp_ns,
 
   GetViewporOrientationRotation(
                   aux,
-                  ekf_to_head_tracker, 
-                  sensor_to_display);
+                  &ekf_to_head_tracker,
+                  &sensor_to_display);
 
   // switch(aux) {
   //   case CardboardViewportOrientation_LandscapeLeft:
