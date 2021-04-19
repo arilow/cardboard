@@ -305,8 +305,9 @@ void CardboardHeadTracker_resume(CardboardHeadTracker* head_tracker) {
 }
 
 void CardboardHeadTracker_getPose(CardboardHeadTracker* head_tracker,
-                                  int64_t timestamp_ns, float* position,
-                                  float* orientation) {
+                                  int64_t timestamp_ns,
+                                  /*CardboardViewportOrientation viewport_orientation,*/
+                                  float* position, float* orientation) {
   if (CARDBOARD_IS_NOT_INITIALIZED() || CARDBOARD_IS_ARG_NULL(head_tracker) ||
       CARDBOARD_IS_ARG_NULL(position) || CARDBOARD_IS_ARG_NULL(orientation)) {
     GetDefaultPosition(position);

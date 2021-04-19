@@ -19,6 +19,7 @@
 #include <array>
 #include <memory>
 #include <mutex>  // NOLINT
+#include <include/cardboard.h>
 
 #include "sensors/accelerometer_data.h"
 #include "sensors/gyroscope_data.h"
@@ -66,6 +67,11 @@ class HeadTracker {
   // This is useful for informing the sensors that they may be able to stop
   // polling for data.
   void UnregisterCallbacks();
+
+  // constexpr void GetViewporOrientationRotation(
+  //                   const CardboardViewportOrientation ViewportOrientation,
+  //                   Rotation& ekf_to_head_tracker,
+  //                   Rotation& sensor_to_display) const;
 
   Rotation GetDefaultOrientation() const;
 
