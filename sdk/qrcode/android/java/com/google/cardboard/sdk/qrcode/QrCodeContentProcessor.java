@@ -20,7 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.cardboard.sdk.R;
 import java.io.IOException;

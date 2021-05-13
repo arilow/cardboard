@@ -20,7 +20,7 @@
 #include <atomic>
 
 #include "jni_utils/android/jni_utils.h"
-
+#include "util/logging.h"
 #define JNI_METHOD(return_type, clazz, method_name) \
   JNIEXPORT return_type JNICALL                     \
       Java_com_google_cardboard_sdk_##clazz##_##method_name
@@ -93,6 +93,7 @@ void scanQrCodeAndSaveDeviceParams() {
   jmethodID newComponentName =
       env->GetMethodID(component_name_class_, "<init>",
                        "(Landroid/content/Context;Ljava/lang/String;)V");
+  CARDBOARD_LOGI("Arilow: hi!!");
   jstring className =
       env->NewStringUTF("com.google.cardboard.sdk.QrCodeCaptureActivity");
   jobject componentNameObject = env->NewObject(
@@ -109,6 +110,7 @@ void scanQrCodeAndSaveDeviceParams() {
   jmethodID startActivity = env->GetMethodID(activityClass, "startActivity",
                                              "(Landroid/content/Intent;)V");
   env->CallVoidMethod(context_, startActivity, intentObject);
+  CARDBOARD_LOGI("Arilow: bye!!");
 }
 
 int getQrCodeScanCount() { return qr_code_scan_count_; }

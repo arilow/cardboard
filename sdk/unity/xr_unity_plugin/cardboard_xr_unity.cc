@@ -124,6 +124,8 @@ class CardboardApi::CardboardApiImpl {
   }
 
   void GetHeadTrackerPose(float* position, float* orientation) {
+    LOGW("arilow: GetHeadTrackerPose");
+
     if (head_tracker_ == nullptr) {
       LOGW("Uninitialized head tracker was queried for the pose.");
       position[0] = 0.0f;
